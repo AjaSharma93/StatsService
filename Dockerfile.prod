@@ -1,0 +1,24 @@
+# build environment
+FROM node:17.7 as build
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm ci --silent
+RUN npm install typescript -g --silent
+COPY . ./
+RUN npm run build
+
+# production environment
+FROM node:17.7
+# Create app directory
+WORKDIR /usr/src/app
+COPY --from=build /app/dist .
+COPY --from=build /app/package*.json ./
+COPY .env ../
+# new
+RUN npm ci --only=production
+EXPOSE 8081
+CMD [ "node", "--experimental-fetch", "server.js" ]
+
+
