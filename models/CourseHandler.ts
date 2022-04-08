@@ -222,13 +222,13 @@ export class CourseHandler {
         if (!courseDetails.sessionId) errors.push(messages.session_id_not_defined);
         else if (!UUID_PATTERN.test(courseDetails.sessionId)) errors.push(messages.session_id_invalid);
 
-        if (courseDetails.totalModulesStudied == undefined) errors.push(messages.modules_not_defined);
+        if (courseDetails.totalModulesStudied === undefined) errors.push(messages.modules_not_defined);
         else if (!Number.isInteger(courseDetails.totalModulesStudied)) errors.push(messages.modules_invalid);
 
-        if (!courseDetails.averageScore == undefined) errors.push(messages.average_score_not_defined);
+        if (!courseDetails.averageScore === undefined) errors.push(messages.average_score_not_defined);
         else if (!this.isFloat(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
 
-        if (!courseDetails.timeStudied == undefined) errors.push(messages.time_studied_not_defined);
+        if (!courseDetails.timeStudied === undefined) errors.push(messages.time_studied_not_defined);
         else if (!Number.isInteger(courseDetails.timeStudied)) errors.push(messages.time_studied_invalid);
 
         return errors;
