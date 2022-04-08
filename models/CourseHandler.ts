@@ -25,6 +25,14 @@ export type CourseFetchSuccess = {
     "timeStudied": number
 }
 
+export type SessionFetchSuccess = {
+    "status":number,
+    "sessionId": string,
+    "totalModulesStudied": number,
+    "averageScore": number,
+    "timeStudied": number
+}
+
 const UUID_PATTERN = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$', 'i');
 
 /* Class to handle inserting, updating and fetching courses */
@@ -39,7 +47,7 @@ export class CourseHandler {
             errors
         }
 
-        const db = DatabaseHelper.db;
+        const db = await DatabaseHelper.db.getConnection();
 
         await db.beginTransaction()
 
@@ -116,27 +124,79 @@ export class CourseHandler {
             errors
         }
 
-        const db = DatabaseHelper.db;
+        const db = await DatabaseHelper.db.getConnection();
 
         const selectStatsQuery = `
         SELECT 
-            SUM(total_modules_studied) as totalModulesStudied,
+            CAST(SUM(total_modules_studied) as UNSIGNED) as totalModulesStudied,
             SUM(average_score) as averageScore, 
-            SUM(time_studied) as timeStudied 
+            CAST(SUM(time_studied) as UNSIGNED) as timeStudied 
         FROM session_stats stats
         INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
-        INNER JOIN courses c on c.course_uuid = UUID_TO_BIN(?)
-        INNER JOIN users u on u.user_uuid = UUID_TO_BIN(?);
+        AND sess.course_uuid = UUID_TO_BIN(?)
+        AND sess.user_uuid = UUID_TO_BIN(?);
         `;
 
         try {
             const [rows, fields] = await db.query(selectStatsQuery, [courseId, userId]);
-            const {totalModulesStudied,averageScore,timeStudied} = (rows as RowDataPacket)[0];
-            return {
+            const {totalModulesStudied, averageScore, timeStudied} = (rows as RowDataPacket)?.[0];
+            return (totalModulesStudied!==null && averageScore!==null && timeStudied!==null)?{
                 status:200,
                 totalModulesStudied,
                 averageScore,
                 timeStudied
+            }:{
+                status:400,
+                errors:[
+                    messages["session_not_found_course"]
+                ]
+            }
+        } catch (err) {
+            logger.error(`Error fetching record for course ${courseId} and user ${userId} with error ${err.code} | ${err.message}`);
+            return {
+                status: 500,
+                errors: [err.message],
+                error_code: err.code
+            };
+        }
+    }
+
+    async getCourseDetailsForSession(userId: string, courseId: string, sessionId:string): Promise<SessionFetchSuccess | CourseValidationError | DBError> {
+        const errors = [];
+        if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
+        if (!UUID_PATTERN.test(userId)) errors.push(messages.user_id_invalid);
+        if (!UUID_PATTERN.test(sessionId)) errors.push(messages.user_id_invalid);
+
+        if (errors.length > 0) return {
+            status: 400,
+            errors
+        }
+
+        const db = await DatabaseHelper.db.getConnection();
+
+        const selectStatsQuery = `
+        SELECT 
+            CAST(total_modules_studied as UNSIGNED) as totalModulesStudied,
+            average_score as averageScore, 
+            CAST(time_studied as UNSIGNED) as timeStudied,
+            BIN_TO_UUID(stats.session_uuid) as sessionId
+        FROM session_stats stats
+        INNER JOIN sessions sess on sess.session_uuid = UUID_TO_BIN(?)
+        AND sess.course_uuid = UUID_TO_BIN(?)
+        AND sess.user_uuid = UUID_TO_BIN(?);
+        `;
+
+        try {
+            const [rows, fields] = await db.query(selectStatsQuery, [sessionId, courseId, userId]);
+            const details = (rows as RowDataPacket)?.[0];
+            return (details)?{
+                status:200,
+                ...details
+            }:{
+                status:400,
+                errors:[
+                    messages["session_not_found"]
+                ]
             }
         } catch (err) {
             logger.error(`Error fetching record for course ${courseId} and user ${userId} with error ${err.code} | ${err.message}`);
@@ -166,11 +226,15 @@ export class CourseHandler {
         else if (!Number.isInteger(courseDetails.totalModulesStudied)) errors.push(messages.modules_invalid);
 
         if (!courseDetails.averageScore == undefined) errors.push(messages.average_score_not_defined);
-        else if (!Number.isInteger(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
+        else if (!this.isFloat(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
 
         if (!courseDetails.timeStudied == undefined) errors.push(messages.time_studied_not_defined);
         else if (!Number.isInteger(courseDetails.timeStudied)) errors.push(messages.time_studied_invalid);
 
         return errors;
+    }
+
+    private isFloat(n: number){
+        return Number(n) === n && n % 1 !== 0;
     }
 }

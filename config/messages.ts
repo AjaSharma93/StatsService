@@ -10,7 +10,9 @@ const messages = {
     "average_score_not_defined":"Average Score not defined.",
     "average_score_invalid":"Average Score invalid.",
     "time_studied_not_defined":"Time studied not defined.",
-    "time_studied_invalid":"Time studied invalid."
+    "time_studied_invalid":"Time studied invalid.",
+    "session_not_found":"session record not found",
+    "session_not_found_course":"session data not found for course"
 }
 
 export default messages;

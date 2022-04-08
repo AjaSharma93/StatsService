@@ -4,7 +4,7 @@ import express from "express";
 import morgan from "morgan";
 import path from 'path';
 import { logger, LoggerStream } from "./config/winston";
-import { CourseHandler, CourseDetails, CourseValidationError, CourseInsertSuccess, CourseFetchSuccess } from "./models/CourseHandler";
+import { CourseHandler, CourseDetails, CourseValidationError, CourseInsertSuccess, CourseFetchSuccess, SessionFetchSuccess } from "./models/CourseHandler";
 import { DatabaseHelper, DBError } from './services/DBService';
 
 // Load up env variables
@@ -41,14 +41,14 @@ app.get('/courses/:courseId', async (req: express.Request, res: express.Response
 })
 
 // API to fetch the stats of a single session
-// app.get('/courses/:courseId/sessions/:sessionId', async (req: express.Request, res: express.Response) => {
-//     const sessionId = req.params.sessionId;
-//     const courseId = req.params.courseId;
-//     const userId = req.get("X-User-Id");
-//     const {status, ...responseData}: SessionFetchSuccess | DBError = await courseHandler.getCourseDetailsForASession(sessionId, courseId, userId);
-//     res.status(status);
-//     res.send(responseData)
-// })
+app.get('/courses/:courseId/sessions/:sessionId', async (req: express.Request, res: express.Response) => {
+    const sessionId = req.params.sessionId;
+    const courseId = req.params.courseId;
+    const userId = req.get("X-User-Id");
+    const {status, ...responseData}: SessionFetchSuccess | CourseValidationError | DBError = await courseHandler.getCourseDetailsForSession(userId, courseId, sessionId);
+    res.status(status);
+    res.send(responseData)
+})
 
 export const init = async function appInit() {
     try {

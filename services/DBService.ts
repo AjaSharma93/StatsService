@@ -8,15 +8,22 @@ export type DBError = {
 
 
 export class DatabaseHelper {
-  public static db: mysql.Connection;
+  public static db: mysql.Pool;
   public static async initialiseDBConnection() {
     try {
-      DatabaseHelper.db = await mysql.createConnection({
-        host: process.env.DB_HOST, // the host name MYSQL_DATABASE: node_mysql
-        user: process.env.DB_USER, // database user MYSQL_USER: MYSQL_USER
-        password: process.env.DB_PASS, // database user password MYSQL_PASSWORD: MYSQL_PASSWORD
-        database: 'senecastats' // database name MYSQL_HOST_IP: mysql_db
-      })
+      DatabaseHelper.db = await mysql.createPool({
+        host: process.env.DB_HOST, // the host name
+        user: process.env.DB_USER, // database user
+        password: process.env.DB_PASS, // database user password
+        database: 'senecastats', // database name
+        typeCast: function (field, next) {
+          if (field.type === "NEWDECIMAL") {
+              var value = field.string();
+              return (value === null) ? null : Number(value);
+          }
+          return next();
+        }
+      });
 
       const createCourses = `CREATE TABLE IF NOT EXISTS senecastats.courses (
         course_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -44,9 +51,9 @@ export class DatabaseHelper {
 
       const createStats = `CREATE TABLE IF NOT EXISTS senecastats.session_stats (
         stat_id INT PRIMARY KEY AUTO_INCREMENT,
-        session_uuid BINARY(16) NOT NULL,
+        session_uuid BINARY(16) UNIQUE NOT NULL,
         total_modules_studied INT NOT NULL,
-        average_score DECIMAL NOT NULL,
+        average_score DECIMAL(5,2) NOT NULL,
         time_studied INT NOT NULL,
         FOREIGN KEY (session_uuid) REFERENCES sessions(session_uuid));`
 
