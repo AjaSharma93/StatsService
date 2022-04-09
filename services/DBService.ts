@@ -16,7 +16,7 @@ export class DatabaseHelper {
         user: process.env.MYSQL_USER, // database user
         password: process.env.MYSQL_PASSWORD, // database user password
         database: process.env.MYSQL_DATABASE, // database name
-        typeCast: function (field, next) {
+        typeCast (field, next) {
           if (field.type === "NEWDECIMAL") {
               const value = field.string();
               return (value === null) ? null : Number(value);

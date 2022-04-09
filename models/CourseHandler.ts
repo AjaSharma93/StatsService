@@ -127,10 +127,10 @@ export class CourseHandler {
         const db = await DatabaseHelper.db.getConnection();
 
         const selectStatsQuery = `
-        SELECT 
+        SELECT
             CAST(SUM(total_modules_studied) as UNSIGNED) as totalModulesStudied,
-            SUM(average_score) as averageScore, 
-            CAST(SUM(time_studied) as UNSIGNED) as timeStudied 
+            SUM(average_score) as averageScore,
+            CAST(SUM(time_studied) as UNSIGNED) as timeStudied
         FROM session_stats stats
         INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
         AND sess.course_uuid = UUID_TO_BIN(?)
@@ -148,7 +148,7 @@ export class CourseHandler {
             }:{
                 status:400,
                 errors:[
-                    messages["session_not_found_course"]
+                    messages.session_not_found_course
                 ]
             }
         } catch (err) {
@@ -175,19 +175,20 @@ export class CourseHandler {
         const db = await DatabaseHelper.db.getConnection();
 
         const selectStatsQuery = `
-        SELECT 
+        SELECT
             CAST(total_modules_studied as UNSIGNED) as totalModulesStudied,
-            average_score as averageScore, 
+            average_score as averageScore,
             CAST(time_studied as UNSIGNED) as timeStudied,
             BIN_TO_UUID(stats.session_uuid) as sessionId
         FROM session_stats stats
-        INNER JOIN sessions sess on sess.session_uuid = UUID_TO_BIN(?)
+        INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
         AND sess.course_uuid = UUID_TO_BIN(?)
-        AND sess.user_uuid = UUID_TO_BIN(?);
+        AND sess.user_uuid = UUID_TO_BIN(?)
+        WHERE stats.session_uuid = UUID_TO_BIN(?);
         `;
 
         try {
-            const [rows, fields] = await db.query(selectStatsQuery, [sessionId, courseId, userId]);
+            const [rows, fields] = await db.query(selectStatsQuery, [courseId, userId, sessionId]);
             const details = (rows as RowDataPacket)?.[0];
             return (details)?{
                 status:200,
@@ -195,7 +196,7 @@ export class CourseHandler {
             }:{
                 status:400,
                 errors:[
-                    messages["session_not_found"]
+                    messages.session_not_found
                 ]
             }
         } catch (err) {
