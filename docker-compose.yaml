@@ -9,7 +9,7 @@ services:
   mysql_db:
     image: 582593384005.dkr.ecr.us-east-1.amazonaws.com/mysql_db
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.sql
     restart: always
     ports:
       - "3306:3306"

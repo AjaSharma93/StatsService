@@ -56,9 +56,9 @@ export const init = async function appInit() {
     }catch(err){
         return logger.error(`Failed to initialise: ${err.code} ${err.message}`);
     }
-    return app.listen(SERVER_PORT, () => {
+    return Promise.resolve(app.listen(SERVER_PORT, () => {
         console.log(`Server successfully started on ${SERVER_PORT}`);
-    });
+    }));
 }
 
 export const server = app;

@@ -6,7 +6,6 @@ export type DBError = {
   error_code:number
 }
 
-
 export class DatabaseHelper {
   public static db: mysql.Pool;
   public static async initialiseDBConnection() {

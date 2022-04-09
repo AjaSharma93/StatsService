@@ -226,16 +226,16 @@ export class CourseHandler {
         if (courseDetails.totalModulesStudied === undefined) errors.push(messages.modules_not_defined);
         else if (!Number.isInteger(courseDetails.totalModulesStudied)) errors.push(messages.modules_invalid);
 
-        if (!courseDetails.averageScore === undefined) errors.push(messages.average_score_not_defined);
+        if (courseDetails.averageScore === undefined) errors.push(messages.average_score_not_defined);
         else if (!this.isFloat(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
 
-        if (!courseDetails.timeStudied === undefined) errors.push(messages.time_studied_not_defined);
+        if (courseDetails.timeStudied === undefined) errors.push(messages.time_studied_not_defined);
         else if (!Number.isInteger(courseDetails.timeStudied)) errors.push(messages.time_studied_invalid);
 
         return errors;
     }
 
     private isFloat(n: number){
-        return Number(n) === n && n % 1 !== 0;
+        return Number(n) === n;
     }
 }
