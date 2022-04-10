@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
-import messages from './config/messages';
 import dotenv from 'dotenv';
 import express from "express";
 import morgan from "morgan";
 import path from 'path';
+import messages from './config/messages';
 import { logger, LoggerStream } from "./config/winston";
 import { CourseDetails, CourseFetchSuccess, CourseHandler, CourseInsertSuccess, CourseValidationError, SessionFetchSuccess } from "./models/CourseHandler";
 import { DatabaseHelper, DBError } from './services/DBService';

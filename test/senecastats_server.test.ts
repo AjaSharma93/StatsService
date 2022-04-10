@@ -1,5 +1,3 @@
-import * as express from 'express';
-import http from 'http';
 import mysql from 'mysql2/promise';
 import IntegrationHelpers from './helpers/Integration-helpers';
 

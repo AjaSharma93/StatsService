@@ -1,11 +1,9 @@
-import * as express from 'express';
-import http from 'http';
 import mysql from 'mysql2/promise';
 import { agent as request } from "supertest";
-import { v4 as uuidv4 } from 'uuid';
 import messages from '../config/messages';
 import IntegrationHelpers from './helpers/Integration-helpers';
 
+/* Miscellaneous tests */
 describe('Test the typecast functionality for sql queries', () => {
     const runServer = async () => {
         const helper = new IntegrationHelpers();
@@ -61,6 +59,7 @@ describe('Test the typecast functionality for sql queries', () => {
 
 });
 
+/* Test API calls to invalid routes */
 describe('Test invalid route', () => {
     it('successfully responds to invalid routes', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(() => Promise.resolve({
