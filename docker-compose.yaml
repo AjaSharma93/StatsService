@@ -7,7 +7,7 @@ x-common-variables: &common-variables
 
 services:
   mysql_db:
-    image: 582593384005.dkr.ecr.us-east-1.amazonaws.com/mysql_db
+    image: 582593384005.dkr.ecr.us-west-2.amazonaws.com/mysql_db # seneca-stats-service repository URI here
     build:
       dockerfile: Dockerfile.sql
     restart: always
@@ -19,7 +19,7 @@ services:
       MYSQL_HOST: localhost
 
   seneca-stats-service:
-    image: 582593384005.dkr.ecr.us-east-1.amazonaws.com/seneca_stats_service
+    image: 582593384005.dkr.ecr.us-west-2.amazonaws.com/seneca_stats_service # seneca-stats-service repository URI here
     container_name: seneca-stats-service
     restart: on-failure:10
     build:

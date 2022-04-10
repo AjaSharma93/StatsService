@@ -14,7 +14,7 @@ describe('Test the typecast functionality for sql queries', () => {
 
     it('successfully converts a string to float', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
-            let field = {
+            const field = {
                 type: "NEWDECIMAL",
                 string: () => "12.04"
             }
@@ -29,7 +29,7 @@ describe('Test the typecast functionality for sql queries', () => {
 
     it('successfully skips other values', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
-            let field = {
+            const field = {
                 type: "NUMBER",
                 string: () => 1
             }
@@ -44,7 +44,7 @@ describe('Test the typecast functionality for sql queries', () => {
 
     it('does not convert null values', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
-            let field = {
+            const field = {
                 type: "NEWDECIMAL",
                 string: (): any => null
             }

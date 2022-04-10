@@ -15,7 +15,7 @@ describe('Testing API endpoint POST /courses/:courseId', () => {
     beforeAll(async () => {
         spyPool = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(() => Promise.resolve({
             getConnection: () => Promise.resolve({
-                query: (query: string, 
+                query: (query: string,
                     params: any[]) => {
                     if(query === queries.upsert_session &&  params.includes("259bdaed-cfe4-4af9-a1c2-47e3128aa319")){
                         // mock sessions table not found
