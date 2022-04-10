@@ -28,10 +28,10 @@ used depending on the type of content that is being displayed.
 * It is also assumed that session data isn't pre-existent in the database. Hence the implementation includes the creation of sessions related to courses and users if they don't exist in the DB at the time of stats submission. Subsequently, the stats of that particular session are upserted. This uses a transaction based query. 
 
 
-### Deployment:
-Download, install and configure aws-cli from [here](https://aws.amazon.com/cli/)
-Download and setup docker from [here](https://www.docker.com/products/docker-desktop/)
-Login to AWS ECR using the following command:
+## Deployment:
+* Download, install and configure aws-cli from [here](https://aws.amazon.com/cli/).  
+* Download and setup docker from [here](https://www.docker.com/products/docker-desktop/).  
+* Login to AWS ECR using the following command:
 ```
 aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
 
@@ -76,13 +76,14 @@ docker compose ps
 ```
 ![plot](./documentation/container_ps.png)   
 **API** (running on port **3000**) requests can then be made to the URL as listed from the above command. 
+![plot](./documentation/postman_req.png) 
 
-**Adminer** (running on port **8080**) is used to handle any database queries with the following login credentials(listed in docer-compose.yaml):  
+**Adminer** (running on port **8080**) is used to handle any database queries with the following login credentials (listed in docker-compose.yaml):  
 Username: **aja**  
 Password: **admin123**
 ![plot](./documentation/course_table_db.png) 
 
-References:
+References:  
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html  
 
 https://www.docker.com/blog/docker-compose-from-local-to-amazon-ecs/  
