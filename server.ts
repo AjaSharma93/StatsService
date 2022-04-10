@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import messages from './config/messages';
 import dotenv from 'dotenv';
 import express from "express";
 import morgan from "morgan";
@@ -47,7 +48,12 @@ app.get('/courses/:courseId/sessions/:sessionId', async (req: express.Request, r
     const userId = req.get("X-User-Id");
     const {status, ...responseData}: SessionFetchSuccess | CourseValidationError | DBError = await courseHandler.getCourseDetailsForSession(userId, courseId, sessionId);
     res.status(status);
-    res.send(responseData)
+    res.send(responseData);
+})
+
+app.get('*', function (req: express.Request, res: express.Response) {
+    res.status(404);
+    res.send({error:messages.route_not_found})
 })
 
 export const init = async function appInit() {
