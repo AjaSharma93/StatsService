@@ -22,9 +22,9 @@ export const queries = {
 
     "select_stats":`
     SELECT
-        CAST(SUM(total_modules_studied) as UNSIGNED) as totalModulesStudied,
-        SUM(average_score) as averageScore,
-        CAST(SUM(time_studied) as UNSIGNED) as timeStudied
+        CAST(IFNULL(SUM(total_modules_studied),0) as UNSIGNED) as totalModulesStudied,
+        IFNULL(SUM(average_score),0) as averageScore,
+        CAST(IFNULL(SUM(time_studied),0) as UNSIGNED) as timeStudied
     FROM session_stats stats
     INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
     AND sess.course_uuid = UUID_TO_BIN(?)
