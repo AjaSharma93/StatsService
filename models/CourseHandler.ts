@@ -1,8 +1,8 @@
-import { logger } from '../config/winston';
-import messages from '../config/messages';
-import { DatabaseHelper, DBError } from '../services/DBService';
 import { RowDataPacket } from 'mysql2';
+import messages from '../config/messages';
 import { queries } from '../config/queries';
+import { logger } from '../config/winston';
+import { DatabaseHelper, DBError } from '../services/DBService';
 export type CourseInsertSuccess = {
     status: number
 }
@@ -38,6 +38,7 @@ const UUID_PATTERN = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab
 
 /* Class to handle inserting, updating and fetching courses */
 export class CourseHandler {
+
     async upsertCourseDetails(userId: string,
         courseId: string,
         courseDetails: CourseDetails): Promise<CourseInsertSuccess | CourseValidationError | DBError> {
@@ -97,6 +98,36 @@ export class CourseHandler {
         return {
             status: 201
         };
+    }
+
+    private checkCourseDetails(userId: string,
+        courseId: string,
+        courseDetails: CourseDetails): string[] {
+        const errors: string[] = [];
+
+        if (!courseId) errors.push(messages.course_id_not_defined);
+        else if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
+
+        if (!userId) errors.push(messages.user_id_not_defined);
+        else if (!UUID_PATTERN.test(userId)) errors.push(messages.user_id_invalid);
+
+        if (!courseDetails.sessionId) errors.push(messages.session_id_not_defined);
+        else if (!UUID_PATTERN.test(courseDetails.sessionId)) errors.push(messages.session_id_invalid);
+
+        if (courseDetails.totalModulesStudied === undefined) errors.push(messages.modules_not_defined);
+        else if (!Number.isInteger(courseDetails.totalModulesStudied)) errors.push(messages.modules_invalid);
+
+        if (courseDetails.averageScore === undefined) errors.push(messages.average_score_not_defined);
+        else if (!this.isFloat(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
+
+        if (courseDetails.timeStudied === undefined) errors.push(messages.time_studied_not_defined);
+        else if (!Number.isInteger(courseDetails.timeStudied)) errors.push(messages.time_studied_invalid);
+
+        return errors;
+    }
+
+    private isFloat(n: number){
+        return Number(n) === n;
     }
 
     async getCourseDetailsForUser(userId: string, courseId: string): Promise<CourseFetchSuccess | CourseValidationError | DBError> {
@@ -173,33 +204,4 @@ export class CourseHandler {
         }
     }
 
-    private checkCourseDetails(userId: string,
-        courseId: string,
-        courseDetails: CourseDetails): string[] {
-        const errors: string[] = [];
-
-        if (!courseId) errors.push(messages.course_id_not_defined);
-        else if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
-
-        if (!userId) errors.push(messages.user_id_not_defined);
-        else if (!UUID_PATTERN.test(userId)) errors.push(messages.user_id_invalid);
-
-        if (!courseDetails.sessionId) errors.push(messages.session_id_not_defined);
-        else if (!UUID_PATTERN.test(courseDetails.sessionId)) errors.push(messages.session_id_invalid);
-
-        if (courseDetails.totalModulesStudied === undefined) errors.push(messages.modules_not_defined);
-        else if (!Number.isInteger(courseDetails.totalModulesStudied)) errors.push(messages.modules_invalid);
-
-        if (courseDetails.averageScore === undefined) errors.push(messages.average_score_not_defined);
-        else if (!this.isFloat(courseDetails.averageScore)) errors.push(messages.average_score_invalid);
-
-        if (courseDetails.timeStudied === undefined) errors.push(messages.time_studied_not_defined);
-        else if (!Number.isInteger(courseDetails.timeStudied)) errors.push(messages.time_studied_invalid);
-
-        return errors;
-    }
-
-    private isFloat(n: number){
-        return Number(n) === n;
-    }
 }

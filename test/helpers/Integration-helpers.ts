@@ -1,6 +1,6 @@
 import * as express from 'express';
 import http from 'http';
-import { init,server } from '../../server';
+import { init, server } from '../../server';
 export default class IntegrationHelpers {
     private _appInstance: http.Server;
     private _appServer: express.Express;

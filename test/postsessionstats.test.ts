@@ -1,10 +1,10 @@
 import * as express from 'express';
-import { agent as request } from "supertest";
 import http from 'http';
-import IntegrationHelpers from './helpers/Integration-helpers';
 import mysql from 'mysql2/promise';
+import { agent as request } from "supertest";
 import { v4 as uuidv4 } from 'uuid';
 import messages from '../config/messages';
+import IntegrationHelpers from './helpers/Integration-helpers';
 
 /* API tests for creating session stats */
 describe('Testing API endpoint POST /courses/:courseId', () => {

@@ -4,7 +4,7 @@ import express from "express";
 import morgan from "morgan";
 import path from 'path';
 import { logger, LoggerStream } from "./config/winston";
-import { CourseHandler, CourseDetails, CourseValidationError, CourseInsertSuccess, CourseFetchSuccess, SessionFetchSuccess } from "./models/CourseHandler";
+import { CourseDetails, CourseFetchSuccess, CourseHandler, CourseInsertSuccess, CourseValidationError, SessionFetchSuccess } from "./models/CourseHandler";
 import { DatabaseHelper, DBError } from './services/DBService';
 
 // Load up env variables

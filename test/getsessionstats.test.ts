@@ -6,8 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import messages from '../config/messages';
 import IntegrationHelpers from './helpers/Integration-helpers';
 
-/* API tests for fetching stats for a course */
-describe('Testing API endpoint GET /courses/:courseId', () => {
+/* API tests for fetching stats for a session */
+describe('Testing API endpoint GET /courses/:courseId/sessions/:sessionId', () => {
     let app: http.Server;
     let server: express.Express;
     let spyPool: any;
@@ -21,6 +21,7 @@ describe('Testing API endpoint GET /courses/:courseId', () => {
                     } else {
                         //mock a success scenario
                         return Promise.resolve([[{
+                            "sessionId":uuidv4(),
                             "totalModulesStudied": 30,
                             "averageScore": 92,
                             "timeStudied": 1000
@@ -37,29 +38,30 @@ describe('Testing API endpoint GET /courses/:courseId', () => {
 
     it('fetches course stats successfully', async () => {
         const res = await request(server)
-            .get(`/courses/${uuidv4()}`)
+            .get(`/courses/${uuidv4()}/sessions/${uuidv4()}`)
             .set("X-User-Id", uuidv4())
             .send();
         expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty("sessionId");
         expect(res.body).toHaveProperty("totalModulesStudied");
         expect(res.body).toHaveProperty("averageScore");
         expect(res.body).toHaveProperty("timeStudied");
     });
 
-    it('fails to fetch course stats for a course with no sessions', async () => {
+    it('fails to fetch session stats for a session not found', async () => {
         const res = await request(server)
-            .get(`/courses/9d24033c-b6f7-11ec-9aad-8c1645e00e9e`)
+            .get(`/courses/${uuidv4()}/sessions/9d24033c-b6f7-11ec-9aad-8c1645e00e9e`)
             .set("X-User-Id", uuidv4())
             .send();
         expect(res.statusCode).toEqual(400);
         expect(res.body).toHaveProperty("errors");
         expect(Array.isArray(res.body.errors)).toBe(true);
-        expect(res.body.errors).toContain(messages.session_not_found_course);
+        expect(res.body.errors).toContain( messages.session_not_found);
     });
 
-    it('fails to fetch course stats because of user id not defined', async () => {
+    it('fails to fetch session stats because of user id not defined', async () => {
         const res = await request(server)
-            .get(`/courses/${uuidv4()}`)
+            .get(`/courses/${uuidv4()}/sessions/${uuidv4()}`)
             .send();
         expect(res.statusCode).toEqual(400);
         expect(res.body).toHaveProperty('errors');
