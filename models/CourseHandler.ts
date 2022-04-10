@@ -105,8 +105,7 @@ export class CourseHandler {
         courseDetails: CourseDetails): string[] {
         const errors: string[] = [];
 
-        if (!courseId) errors.push(messages.course_id_not_defined);
-        else if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
+        if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
 
         if (!userId) errors.push(messages.user_id_not_defined);
         else if (!UUID_PATTERN.test(userId)) errors.push(messages.user_id_invalid);
@@ -171,7 +170,7 @@ export class CourseHandler {
         const errors = [];
         if (!UUID_PATTERN.test(courseId)) errors.push(messages.course_id_invalid);
         if (!UUID_PATTERN.test(userId)) errors.push(messages.user_id_invalid);
-        if (!UUID_PATTERN.test(sessionId)) errors.push(messages.user_id_invalid);
+        if (!UUID_PATTERN.test(sessionId)) errors.push(messages.session_id_invalid);
 
         if (errors.length > 0) return {
             status: 400,

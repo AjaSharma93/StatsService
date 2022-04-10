@@ -1,10 +1,13 @@
 import * as express from 'express';
 import http from 'http';
 import mysql from 'mysql2/promise';
+import { agent as request } from "supertest";
+import { v4 as uuidv4 } from 'uuid';
+import messages from '../config/messages';
 import IntegrationHelpers from './helpers/Integration-helpers';
 
 describe('Test the typecast functionality for sql queries', () => {
-    const runServer = async ()=>{
+    const runServer = async () => {
         const helper = new IntegrationHelpers();
         await helper.initApp();
         const app = helper.appInstance;
@@ -14,10 +17,10 @@ describe('Test the typecast functionality for sql queries', () => {
     it('successfully converts a string to float', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
             let field = {
-                type:"NEWDECIMAL",
-                string:()=>"12.04"
+                type: "NEWDECIMAL",
+                string: () => "12.04"
             }
-            typeCast(field,()=>{})
+            typeCast(field, () => { })
             return Promise.resolve({
                 getConnection: () => Promise.resolve({})
             })
@@ -29,10 +32,10 @@ describe('Test the typecast functionality for sql queries', () => {
     it('successfully skips other values', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
             let field = {
-                type:"NUMBER",
-                string:()=>1
+                type: "NUMBER",
+                string: () => 1
             }
-            typeCast(field,()=>{})
+            typeCast(field, () => { })
             return Promise.resolve({
                 getConnection: () => Promise.resolve({})
             })
@@ -44,10 +47,10 @@ describe('Test the typecast functionality for sql queries', () => {
     it('does not convert null values', async () => {
         const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(({ typeCast }) => {
             let field = {
-                type:"NEWDECIMAL",
-                string:():any=>null
+                type: "NEWDECIMAL",
+                string: (): any => null
             }
-            typeCast(field,()=>{})
+            typeCast(field, () => { })
             return Promise.resolve({
                 getConnection: () => Promise.resolve({})
             })
@@ -56,4 +59,26 @@ describe('Test the typecast functionality for sql queries', () => {
         spy.mockRestore();
     });
 
+});
+
+describe('Test invalid route', () => {
+    it('successfully responds to invalid routes', async () => {
+        const spy = jest.spyOn(mysql, "createPool").mockImplementation(jest.fn(() => Promise.resolve({
+            getConnection: () => Promise.resolve({})
+          })) as jest.Mock);
+        const helper = new IntegrationHelpers();
+        await helper.initApp();
+        const app = helper.appInstance;
+        const server = helper.appServer;
+
+        const res = await request(server)
+            .get(`/abcd`)
+            .send();
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toHaveProperty("error");
+        expect(res.body.error).toBe(messages.route_not_found);
+
+        await app.close();
+        spy.mockRestore();
+    });
 });

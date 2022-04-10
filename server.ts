@@ -51,7 +51,8 @@ app.get('/courses/:courseId/sessions/:sessionId', async (req: express.Request, r
     res.send(responseData);
 })
 
-app.get('*', function (req: express.Request, res: express.Response) {
+// Invalid route handling
+app.get('*', (req: express.Request, res: express.Response) => {
     res.status(404);
     res.send({error:messages.route_not_found})
 })

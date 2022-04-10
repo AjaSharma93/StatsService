@@ -18,8 +18,14 @@ describe('Testing API endpoint GET /courses/:courseId', () => {
                     if (params.includes("9d24033c-b6f7-11ec-9aad-8c1645e00e9e")) {
                         // mock no sessions existing for course
                         return Promise.resolve([[], null])
-                    } else {
-                        //mock a success scenario
+                    } else if(params.includes("8a8641be-b196-4e42-8f4b-cd33c790915e")){
+                        // mock no sessions existing for course
+                        return Promise.reject({
+                            code:"ER_NO_SUCH_TABLE",
+                            message:"Table 'senecastats.session_stats' doesn't exist"
+                        })
+                    }else {
+                        // mock a success scenario
                         return Promise.resolve([[{
                             "totalModulesStudied": 30,
                             "averageScore": 92,
@@ -57,14 +63,28 @@ describe('Testing API endpoint GET /courses/:courseId', () => {
         expect(res.body.errors).toContain(messages.session_not_found_course);
     });
 
-    it('fails to fetch course stats because of user id not defined', async () => {
+    it('fails to fetch course stats because of user id not defined with an invalid course id', async () => {
         const res = await request(server)
-            .get(`/courses/${uuidv4()}`)
+            .get(`/courses/abc`)
             .send();
         expect(res.statusCode).toEqual(400);
         expect(res.body).toHaveProperty('errors');
         expect(Array.isArray(res.body.errors)).toBe(true);
         expect(res.body.errors).toContain(messages.user_id_invalid)
+        expect(res.body.errors).toContain(messages.course_id_invalid)
+    });
+
+    it('fails to fetch course stats because session stats table does not exist', async () => {
+        const res = await request(server)
+            .get(`/courses/8a8641be-b196-4e42-8f4b-cd33c790915e`)
+            .set("X-User-Id", uuidv4())
+            .send();
+        expect(res.statusCode).toEqual(500);
+        expect(res.body).toHaveProperty('errors');
+        expect(Array.isArray(res.body.errors)).toBe(true);
+        expect(res.body).toHaveProperty('error_code');
+        expect(res.body.error_code).toContain("ER_NO_SUCH_TABLE")
+        expect(res.body.errors).toContain("Table 'senecastats.session_stats' doesn't exist")
     });
 
     afterAll(async () => {

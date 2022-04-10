@@ -4,8 +4,6 @@ import mysql from 'mysql2/promise';
 import IntegrationHelpers from './helpers/Integration-helpers';
 
 describe('Server Tests', () => {
-  let app: http.Server;
-  let server: express.Express;
 
   const runServer = async () => {
     const helper = new IntegrationHelpers();
