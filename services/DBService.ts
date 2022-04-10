@@ -10,7 +10,7 @@ export class DatabaseHelper {
   public static db: mysql.Pool;
   public static async initialiseDBConnection() {
     try {
-      DatabaseHelper.db = await mysql.createPool({
+      this.db = await mysql.createPool({
         host: process.env.MYSQL_HOST_IP, // the host name
         user: process.env.MYSQL_USER, // database user
         password: process.env.MYSQL_PASSWORD, // database user password
@@ -23,9 +23,11 @@ export class DatabaseHelper {
           return next();
         }
       });
+
+      // Check if a connection to database exists
+      await this.db.getConnection();
     } catch (err) {
       console.log("Error initialising database");
-      DatabaseHelper.db.end();
       throw err;
     }
   }

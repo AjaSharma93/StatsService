@@ -2,6 +2,7 @@ import { logger } from '../config/winston';
 import messages from '../config/messages';
 import { DatabaseHelper, DBError } from '../services/DBService';
 import { RowDataPacket } from 'mysql2';
+import { queries } from '../config/queries';
 export type CourseInsertSuccess = {
     status: number
 }
@@ -51,15 +52,7 @@ export class CourseHandler {
 
         await db.beginTransaction()
 
-        const upsertSessionQuery = `
-            INSERT INTO senecastats.sessions
-                (user_uuid, course_uuid, session_uuid)
-            VALUES
-                (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?))
-            ON DUPLICATE KEY UPDATE
-                user_uuid = UUID_TO_BIN(?),
-                course_uuid = UUID_TO_BIN(?),
-                session_uuid = UUID_TO_BIN(?);`;
+        const upsertSessionQuery = queries.upsert_session;
 
         try {
             await db.query(upsertSessionQuery, [
@@ -79,16 +72,7 @@ export class CourseHandler {
             }
         }
 
-        const upsertStatsQuery = `
-            INSERT INTO senecastats.session_stats
-                (session_uuid, total_modules_studied, average_score, time_studied)
-            VALUES
-                (UUID_TO_BIN(?), ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                session_uuid = UUID_TO_BIN(?),
-                total_modules_studied = ?,
-                average_score = ?,
-                time_studied = ?`;
+        const upsertStatsQuery = queries.upsert_stats;
         try {
             await db.query(upsertStatsQuery, [
                 courseDetails.sessionId,
@@ -98,7 +82,8 @@ export class CourseHandler {
                 courseDetails.sessionId,
                 courseDetails.totalModulesStudied,
                 courseDetails.averageScore,
-                courseDetails.timeStudied]);
+                courseDetails.timeStudied
+            ]);
             await db.commit();
         } catch (err) {
             await db.rollback();
@@ -126,25 +111,15 @@ export class CourseHandler {
 
         const db = await DatabaseHelper.db.getConnection();
 
-        const selectStatsQuery = `
-        SELECT
-            CAST(SUM(total_modules_studied) as UNSIGNED) as totalModulesStudied,
-            SUM(average_score) as averageScore,
-            CAST(SUM(time_studied) as UNSIGNED) as timeStudied
-        FROM session_stats stats
-        INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
-        AND sess.course_uuid = UUID_TO_BIN(?)
-        AND sess.user_uuid = UUID_TO_BIN(?);
-        `;
+        const selectStatsQuery = queries.select_stats;
 
         try {
-            const [rows, fields] = await db.query(selectStatsQuery, [courseId, userId]);
-            const {totalModulesStudied, averageScore, timeStudied} = (rows as RowDataPacket)?.[0];
-            return (totalModulesStudied!==null && averageScore!==null && timeStudied!==null)?{
+            const [rows] = await db.query(selectStatsQuery, [courseId, userId]);
+
+            const data = (rows as RowDataPacket)?.[0];
+            return (data)?{
                 status:200,
-                totalModulesStudied,
-                averageScore,
-                timeStudied
+                ...data
             }:{
                 status:400,
                 errors:[
@@ -174,21 +149,10 @@ export class CourseHandler {
 
         const db = await DatabaseHelper.db.getConnection();
 
-        const selectStatsQuery = `
-        SELECT
-            CAST(total_modules_studied as UNSIGNED) as totalModulesStudied,
-            average_score as averageScore,
-            CAST(time_studied as UNSIGNED) as timeStudied,
-            BIN_TO_UUID(stats.session_uuid) as sessionId
-        FROM session_stats stats
-        INNER JOIN sessions sess on sess.session_uuid = stats.session_uuid
-        AND sess.course_uuid = UUID_TO_BIN(?)
-        AND sess.user_uuid = UUID_TO_BIN(?)
-        WHERE stats.session_uuid = UUID_TO_BIN(?);
-        `;
+        const selectStatsQuery = queries.select_stats_session;
 
         try {
-            const [rows, fields] = await db.query(selectStatsQuery, [courseId, userId, sessionId]);
+            const [rows] = await db.query(selectStatsQuery, [courseId, userId, sessionId]);
             const details = (rows as RowDataPacket)?.[0];
             return (details)?{
                 status:200,
