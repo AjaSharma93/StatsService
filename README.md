@@ -27,15 +27,41 @@ used depending on the type of content that is being displayed.
 * It is assumed that session data can be modified. Hence, upsert SQL commands are used.
 * It is also assumed that session data isn't pre-existent in the database. Hence the implementation includes the creation of sessions related to courses and users if they don't exist in the DB at the time of stats submission. Subsequently, the stats of that particular session are upserted. This uses a transaction based query. 
 
+## Testing
 
-## Deployment:
+Install [NodeJS](https://nodejs.org/en/download/current/)(>=17.7). Then install Typescript globally using the command.
+```
+npm install -g typescript
+```
+
 Clone the repository and change to the parent directory.
 ```
-git clone https://github.com/AjaSharma93/StatsService
+git clone https://github.com/AjaSharma93/StatsService 
+
 cd StatsService
 ```
-Download, install and configure aws-cli from [here](https://aws.amazon.com/cli/).  
-Download and setup docker from [here](https://www.docker.com/products/docker-desktop/).  
+Install all required modules.
+```
+npm install
+```
+API and functional tests using Jest can then be run using the command,
+```
+npm run test
+``` 
+
+## Deployment:
+Clone the repository and change to the parent directory on the command line.
+```
+git clone https://github.com/AjaSharma93/StatsService 
+
+cd StatsService
+```
+Download, install and configure AWS-CLI from [here](https://aws.amazon.com/cli/).  
+Download and install [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose](https://docs.docker.com/compose/install/).  
+Configure the AWS CLI by providing the access token and secret with the command,
+```
+aws configure
+```
 Login to AWS ECR using the following command:
 ```
 aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
@@ -47,13 +73,7 @@ Setup the ECR Repository for the API.
 ```
 aws ecr create-repository --repository-name seneca_stats_service --image-scanning-configuration scanOnPush=true 
 ```
-Open **docker-compose.yaml** in the parent directory, copy the URI in the output to the **image** attribute of the section **seneca-stats-service**. 
-
-Setup the ECR Repository for the database.
-```
-aws ecr create-repository --repository-name mysql_db --image-scanning-configuration scanOnPush=true
-```
-Open **docker-compose.yaml** in the parent directory, copy the URI in the output to the **image** attribute of the section **mysql_db**. 
+Open **docker-compose.yaml** in the parent directory, copy the URI in the output to the **image** attribute of the section **seneca-stats-service**.  
 
 Run the build command from the parent directory,
 ```
@@ -63,7 +83,7 @@ Upload the images with the following command,
 ```
 docker compose push
 ```
-Create a new context in Docker.
+Create a new context in Docker with the AWS credentials required.
 ```
 docker context create ecs myecscontext
 ```
