@@ -100,13 +100,15 @@ The services can then be listed using the following command.
 docker compose ps
 ```
 ![plot](./documentation/container_ps.png)   
-**API** (running on port **3000**) requests can then be made to the URL as listed from the above command. 
-![plot](./documentation/postman_req.png) 
 
 **Adminer** (running on port **8080**) is used to handle any database queries with the following login credentials (listed in docker-compose.yaml):  
 Username: **aja**  
 Password: **admin123**
 ![plot](./documentation/course_table_db.png) 
+
+## API requests
+**API** (running on port **3000**) requests can then be made to the URL as listed in `docker compose ps`. 
+![plot](./documentation/postman_req.png) 
 
 References:  
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html  
