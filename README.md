@@ -29,9 +29,14 @@ used depending on the type of content that is being displayed.
 
 
 ## Deployment:
-* Download, install and configure aws-cli from [here](https://aws.amazon.com/cli/).  
-* Download and setup docker from [here](https://www.docker.com/products/docker-desktop/).  
-* Login to AWS ECR using the following command:
+Clone the repository and change to the parent directory.
+```
+git clone https://github.com/AjaSharma93/StatsService
+cd StatsService
+```
+Download, install and configure aws-cli from [here](https://aws.amazon.com/cli/).  
+Download and setup docker from [here](https://www.docker.com/products/docker-desktop/).  
+Login to AWS ECR using the following command:
 ```
 aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
 

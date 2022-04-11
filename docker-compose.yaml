@@ -7,12 +7,12 @@ x-common-variables: &common-variables
 
 services:
   mysql_db:
-    image: 582593384005.dkr.ecr.us-west-2.amazonaws.com/mysql_db # seneca-stats-service repository URI here
-    build:
-      dockerfile: Dockerfile.sql
+    image: mysql # seneca-stats-service repository URI here
     restart: always
     ports:
       - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
     environment:
       <<: *common-variables
       MYSQL_ROOT_PASSWORD: admin123
@@ -43,3 +43,6 @@ services:
         - mysql_db
       environment:
         ADMINER_DEFAULT_SERVER: mysql_db
+
+volumes:
+  mysql-data:

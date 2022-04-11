@@ -147,7 +147,7 @@ export class CourseHandler {
             const [rows] = await db.query(selectStatsQuery, [courseId, userId]);
 
             const data = (rows as RowDataPacket)?.[0];
-            return (data)?{
+            return (data && data.totalModulesStudied && data.averageScore && data.timeStudied)?{
                 status:200,
                 ...data
             }:{
