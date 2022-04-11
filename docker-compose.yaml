@@ -7,7 +7,7 @@ x-common-variables: &common-variables
 
 services:
   mysql_db:
-    image: mysql # seneca-stats-service repository URI here
+    image: mysql
     restart: always
     ports:
       - "3306:3306"
