@@ -57,7 +57,7 @@ git clone https://github.com/AjaSharma93/StatsService
 cd StatsService
 ```
 Download, install and configure AWS-CLI from [here](https://aws.amazon.com/cli/).  
-Download and install [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose](https://docs.docker.com/compose/install/).  
+Download and install [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose](https://docs.docker.com/compose/install/). Additonally, for linux machines install [Docker-compose CLI](https://docs.docker.com/cloud/ecs-integration/#install-the-docker-compose-cli-on-linux).  
 Configure the AWS CLI by providing the access token and secret with the command,
 ```
 aws configure
