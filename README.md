@@ -1,4 +1,4 @@
-# StatsService
+# Seneca Stats API
 
 ## Requirements
 
