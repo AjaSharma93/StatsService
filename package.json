@@ -9,7 +9,7 @@
         "prestart": "npm run build",
         "test": "jest --coverage --runInBand",
         "test:watch": "jest --watch",
-        "start": "node --experimental-fetch ."
+        "start": "node ."
     },
     "author": "",
     "license": "ISC",
