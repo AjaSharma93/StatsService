@@ -27,6 +27,9 @@ used depending on the type of content that is being displayed.
 * It is assumed that session data can be modified. Hence, upsert SQL commands are used.
 * It is also assumed that session data isn't pre-existent in the database. Hence the implementation includes the creation of sessions related to courses and users if they don't exist in the DB at the time of stats submission. Subsequently, the stats of that particular session are upserted. This uses a transaction based query. 
 
+## Data Model
+![plot](./documentation/stats_db_model.png) 
+
 ## Testing
 
 Install [NodeJS](https://nodejs.org/en/download/current/)(>=17.7). Then install Typescript globally using the command.
